@@ -6,7 +6,7 @@
 
 ## Documentation
 
-Please see the [BabDev website](https://www.babdev.com/open-source/packages/laravel-twilio/docs/1.x) for detailed information on how to use this package.
+Please see the [BabDev website](https://www.babdev.com/open-source/packages/laravel-twilio/docs/2.x/intro) for detailed information on how to use this package.
 
 ## Security
 
