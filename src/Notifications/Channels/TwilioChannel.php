@@ -11,8 +11,7 @@ final class TwilioChannel
 {
     public function __construct(
         private readonly TwilioClient $twilio,
-    ) {
-    }
+    ) {}
 
     /**
      * @throws TwilioException on Twilio API failure

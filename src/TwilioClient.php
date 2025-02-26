@@ -16,8 +16,7 @@ final class TwilioClient implements TwilioClientContract
     public function __construct(
         private readonly Client $twilio,
         private readonly string $from,
-    ) {
-    }
+    ) {}
 
     public function twilio(): Client
     {

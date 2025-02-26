@@ -15,8 +15,8 @@ return (new PhpCsFixer\Config())
             '@PHP81Migration'                             => true,
             '@PHP80Migration:risky'                       => true,
             '@PHPUnit100Migration:risky'                  => true,
-            '@PSR12'                                      => true,
-            '@PSR2'                                       => true,
+            '@PER-CS'                                     => true,
+            '@PER-CS:risky'                               => true,
             'align_multiline_comment'                     => true,
             'array_indentation'                           => true,
             'array_syntax'                                => [

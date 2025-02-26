@@ -59,9 +59,7 @@ final class TwilioChannelTest extends TestCase
                 return ['twilio'];
             }
 
-            public function routeNotificationForTwilio(Notification $notification): void
-            {
-            }
+            public function routeNotificationForTwilio(Notification $notification): void {}
         };
 
         $notification = new class() extends Notification {
@@ -96,9 +94,7 @@ final class TwilioChannelTest extends TestCase
         };
 
         $notification = new class() extends Notification {
-            public function toTwilio(mixed $notifiable): void
-            {
-            }
+            public function toTwilio(mixed $notifiable): void {}
         };
 
         $this->assertNull((new TwilioChannel($twilio))->send($notifiable, $notification));

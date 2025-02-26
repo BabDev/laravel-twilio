@@ -60,7 +60,7 @@ final class ConnectionManagerTest extends TestCase
         $manager = $this->app->make(ConnectionManager::class);
         $manager->extend(
             'twilio',
-            static fn (Container $container): TwilioClientContract => $client
+            static fn(Container $container): TwilioClientContract => $client
         );
 
         $this->assertSame($twilioClient, $manager->twilio());
@@ -81,7 +81,7 @@ final class ConnectionManagerTest extends TestCase
         $manager = $this->app->make(ConnectionManager::class);
         $manager->extend(
             'twilio',
-            static fn (Container $container): TwilioClientContract => $client
+            static fn(Container $container): TwilioClientContract => $client
         );
 
         $this->assertSame($call, $manager->call('me', []));
@@ -103,7 +103,7 @@ final class ConnectionManagerTest extends TestCase
 
         $manager->extend(
             'twilio',
-            static fn (Container $container): TwilioClientContract => $client
+            static fn(Container $container): TwilioClientContract => $client
         );
 
         $this->assertSame($message, $manager->message('me', 'Hello!', []));

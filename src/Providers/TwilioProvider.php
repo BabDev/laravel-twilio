@@ -52,7 +52,7 @@ final class TwilioProvider extends ServiceProvider implements DeferrableProvider
     {
         $this->app->singleton(
             ConnectionManager::class,
-            static fn (Application $app): ConnectionManager => new ConnectionManager($app),
+            static fn(Application $app): ConnectionManager => new ConnectionManager($app),
         );
 
         $this->app->alias(ConnectionManager::class, TwilioClient::class);

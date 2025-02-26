@@ -37,11 +37,9 @@ final class LaravelHttpClientTest extends TestCase
             $headers
         );
 
-        $factory->assertSent(static function (Request $request, Response $response) use ($url, $messageData): bool {
-            return !$request->hasHeader('Authorization')
+        $factory->assertSent(static fn(Request $request, Response $response): bool => !$request->hasHeader('Authorization')
                 && $request->url() === $url
-                && $request->data() === $messageData;
-        });
+                && $request->data() === $messageData);
     }
 
     public function testARequestCanBeSentToTheTwilioApiWithCredentials(): void
@@ -72,11 +70,9 @@ final class LaravelHttpClientTest extends TestCase
             'password'
         );
 
-        $factory->assertSent(static function (Request $request, Response $response) use ($url, $messageData): bool {
-            return $request->hasHeader('Authorization')
+        $factory->assertSent(static fn(Request $request, Response $response): bool => $request->hasHeader('Authorization')
                 && $request->url() === $url
-                && $request->data() === $messageData;
-        });
+                && $request->data() === $messageData);
     }
 
     public function testAnExceptionIsThrownWhenThereIsAnErrorPerformingTheRequest(): void

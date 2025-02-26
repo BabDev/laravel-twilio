@@ -11,8 +11,7 @@ final class LaravelHttpClient implements Client
 {
     public function __construct(
         private readonly Factory $httpFactory,
-    ) {
-    }
+    ) {}
 
     /**
      * @throws HttpException if the request cannot be completed
