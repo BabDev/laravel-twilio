@@ -3,20 +3,22 @@
 namespace BabDev\Twilio\Facades;
 
 use BabDev\Twilio\ConnectionManager;
-use BabDev\Twilio\Contracts\TwilioClient as TwilioClientContract;
 use Illuminate\Support\Facades\Facade;
-use Twilio\Rest\Api\V2010\Account\CallInstance;
-use Twilio\Rest\Api\V2010\Account\MessageInstance;
-use Twilio\Rest\Client;
 
 /**
- * @method static ConnectionManager    extend($name, \Closure $callback)
- * @method static TwilioClientContract connection(string $name = null)
- * @method static Client               twilio()
- * @method static CallInstance         call(string $to, array $params = [])
- * @method static MessageInstance      message(string $to, string $message, array $params = [])
+ * @method static \BabDev\Twilio\Contracts\TwilioClient connection(string|null $name = null)
+ * @method static string getDefaultDriver()
+ * @method static \Twilio\Rest\Client twilio()
+ * @method static \Twilio\Rest\Api\V2010\Account\CallInstance call(string $to, array $params = [])
+ * @method static \Twilio\Rest\Api\V2010\Account\MessageInstance message(string $to, string $message, array $params = [])
+ * @method static mixed driver(string|null $driver = null)
+ * @method static \BabDev\Twilio\ConnectionManager extend(string $driver, \Closure $callback)
+ * @method static array getDrivers()
+ * @method static \Illuminate\Contracts\Container\Container getContainer()
+ * @method static \BabDev\Twilio\ConnectionManager setContainer(\Illuminate\Contracts\Container\Container $container)
+ * @method static \BabDev\Twilio\ConnectionManager forgetDrivers()
  *
- * @see ConnectionManager
+ * @see \BabDev\Twilio\ConnectionManager
  */
 final class TwilioClient extends Facade
 {
