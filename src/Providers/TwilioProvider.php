@@ -6,7 +6,6 @@ use BabDev\Twilio\ConnectionManager;
 use BabDev\Twilio\Contracts\TwilioClient;
 use BabDev\Twilio\Notifications\Channels\TwilioChannel;
 use BabDev\Twilio\Twilio\Http\LaravelHttpClient;
-use GuzzleHttp\Client as Guzzle;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Support\DeferrableProvider;
@@ -15,7 +14,6 @@ use Illuminate\Notifications\ChannelManager;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\ServiceProvider;
 use Twilio\Http\Client as TwilioHttpClient;
-use Twilio\Http\CurlClient;
 
 final class TwilioProvider extends ServiceProvider implements DeferrableProvider
 {

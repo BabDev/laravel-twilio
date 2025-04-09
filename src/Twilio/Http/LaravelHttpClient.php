@@ -8,10 +8,10 @@ use Twilio\Exceptions\HttpException;
 use Twilio\Http\Client;
 use Twilio\Http\Response;
 
-final class LaravelHttpClient implements Client
+final readonly class LaravelHttpClient implements Client
 {
     public function __construct(
-        private readonly Factory $httpFactory,
+        private Factory $httpFactory,
     ) {}
 
     /**

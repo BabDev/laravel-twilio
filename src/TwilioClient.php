@@ -8,14 +8,14 @@ use Twilio\Rest\Api\V2010\Account\CallInstance;
 use Twilio\Rest\Api\V2010\Account\MessageInstance;
 use Twilio\Rest\Client;
 
-final class TwilioClient implements TwilioClientContract
+final readonly class TwilioClient implements TwilioClientContract
 {
     /**
      * @param string $from The default from number to use.
      */
     public function __construct(
-        private readonly Client $twilio,
-        private readonly string $from,
+        private Client $twilio,
+        private string $from,
     ) {}
 
     public function twilio(): Client

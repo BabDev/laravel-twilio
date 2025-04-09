@@ -7,10 +7,10 @@ use Illuminate\Notifications\Notification;
 use Twilio\Exceptions\TwilioException;
 use Twilio\Rest\Api\V2010\Account\MessageInstance;
 
-final class TwilioChannel
+final readonly class TwilioChannel
 {
     public function __construct(
-        private readonly TwilioClient $twilio,
+        private TwilioClient $twilio,
     ) {}
 
     /**
