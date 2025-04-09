@@ -3,6 +3,7 @@
 namespace BabDev\Twilio\Twilio\Http;
 
 use Illuminate\Http\Client\Factory;
+use Twilio\AuthStrategy\AuthStrategy;
 use Twilio\Exceptions\HttpException;
 use Twilio\Http\Client;
 use Twilio\Http\Response;
@@ -25,11 +26,14 @@ final class LaravelHttpClient implements Client
         string $user = null,
         string $password = null,
         int $timeout = null,
+        ?AuthStrategy $authStrategy = null,
     ): Response {
         $request = $this->httpFactory->asForm();
 
         if ($user && $password) {
             $request->withBasicAuth($user, $password);
+        } elseif ($authStrategy instanceof AuthStrategy) {
+            $request->withHeader('Authorization', $authStrategy->getAuthString());
         }
 
         $request->withHeaders($headers);
