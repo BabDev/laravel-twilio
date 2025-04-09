@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.1 (2025-04-09)
+
+- Block updates to `twilio/sdk:^8.5` due to B/C break in the HTTP client
+
 ## 2.3.0 (2025-03-21)
 
 - Add support for Laravel 12
