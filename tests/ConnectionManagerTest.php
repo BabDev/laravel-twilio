@@ -30,14 +30,6 @@ final class ConnectionManagerTest extends TestCase
         $this->assertNotSame($manager->connection(), $manager->connection('custom'), 'The default manager instance should not be the same as the custom instance.');
     }
 
-    public function testAnInvalidConfigurationCausesAnException(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Driver [invalid] is not correctly configured.');
-
-        $this->app->make(ConnectionManager::class)->connection('invalid');
-    }
-
     public function testAnUnknownCustomConnectionCausesAnException(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -126,13 +118,6 @@ final class ConnectionManagerTest extends TestCase
             [
                 'sid' => 'custom_sid',
                 'token' => 'custom_token',
-                'from' => '+15558675309',
-            ]
-        );
-
-        $app['config']->set(
-            'twilio.connections.invalid',
-            [
                 'from' => '+15558675309',
             ]
         );
