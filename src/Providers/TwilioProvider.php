@@ -62,15 +62,7 @@ final class TwilioProvider extends ServiceProvider implements DeferrableProvider
     {
         $this->app->bind(
             TwilioHttpClient::class,
-            static function (Application $app): TwilioHttpClient {
-                // If Guzzle is installed, then we will use Laravel's native client
-                if (class_exists(Guzzle::class)) {
-                    return new LaravelHttpClient($app->make(Factory::class));
-                }
-
-                // Default to the curl client
-                return new CurlClient();
-            }
+            static fn(Application $app): TwilioHttpClient => new LaravelHttpClient($app->make(Factory::class)),
         );
     }
 
