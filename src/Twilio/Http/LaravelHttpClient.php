@@ -28,15 +28,14 @@ final readonly class LaravelHttpClient implements Client
         int $timeout = null,
         ?AuthStrategy $authStrategy = null,
     ): Response {
-        $request = $this->httpFactory->asForm();
+        $request = $this->httpFactory->bodyFormat('form_params')
+            ->withHeaders($headers);
 
         if ($user && $password) {
             $request->withBasicAuth($user, $password);
         } elseif ($authStrategy instanceof AuthStrategy) {
             $request->withHeader('Authorization', $authStrategy->getAuthString());
         }
-
-        $request->withHeaders($headers);
 
         $requestOptions = [
             'form_params' => $data,
