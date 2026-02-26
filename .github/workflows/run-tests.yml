@@ -9,8 +9,8 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: ['8.2', '8.3', '8.4']
-        laravel: ['11.*', '12.*']
+        php: ['8.2', '8.3', '8.4', '8.5']
+        laravel: ['11.*', '12.*', '13.*@dev']
         composer-flags: ['--prefer-stable']
         can-fail: [false]
         include:
@@ -18,12 +18,17 @@ jobs:
             laravel: '11.*'
             composer-flags: '--prefer-stable --prefer-lowest'
             can-fail: false
+        exclude:
+          - php: '8.5'
+            laravel: '11.*'
+          - php: '8.2'
+            laravel: '13.*@dev'
 
     name: "PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }}${{ matrix.composer-flags != '' && format(' - Composer {0}', matrix.composer-flags) || '' }}"
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2

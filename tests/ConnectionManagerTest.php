@@ -10,6 +10,7 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Support\ServiceProvider;
 use Orchestra\Testbench\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use Twilio\Rest\Api\V2010\Account\CallInstance;
 use Twilio\Rest\Api\V2010\Account\MessageInstance;
 use Twilio\Rest\Client;
@@ -39,8 +40,8 @@ final class ConnectionManagerTest extends TestCase
 
     public function testRetrievingTheSdkClientProxiesThrough(): void
     {
-        /** @var MockObject&Client $twilioClient */
-        $twilioClient = $this->createMock(Client::class);
+        /** @var Stub&Client $twilioClient */
+        $twilioClient = $this->createStub(Client::class);
 
         /** @var MockObject&TwilioClientContract $client */
         $client = $this->createMock(TwilioClientContract::class);
@@ -60,8 +61,8 @@ final class ConnectionManagerTest extends TestCase
 
     public function testPlacingACallProxiesThrough(): void
     {
-        /** @var MockObject&CallInstance $call */
-        $call = $this->createMock(CallInstance::class);
+        /** @var Stub&CallInstance $call */
+        $call = $this->createStub(CallInstance::class);
 
         /** @var MockObject&TwilioClientContract $client */
         $client = $this->createMock(TwilioClientContract::class);
@@ -81,8 +82,8 @@ final class ConnectionManagerTest extends TestCase
 
     public function testSendingAMessageProxiesThrough(): void
     {
-        /** @var MockObject&MessageInstance $message */
-        $message = $this->createMock(MessageInstance::class);
+        /** @var Stub&MessageInstance $message */
+        $message = $this->createStub(MessageInstance::class);
 
         /** @var MockObject&TwilioClientContract $client */
         $client = $this->createMock(TwilioClientContract::class);

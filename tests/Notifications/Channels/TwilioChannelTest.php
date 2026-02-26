@@ -18,7 +18,7 @@ final class TwilioChannelTest extends TestCase
         $twilio = $this->createMock(TwilioClient::class);
         $twilio->expects($this->once())
             ->method('message')
-            ->willReturn($this->createMock(MessageInstance::class));
+            ->willReturn($this->createStub(MessageInstance::class));
 
         $notifiable = new class() {
             use Notifiable;

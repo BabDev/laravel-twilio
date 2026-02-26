@@ -5,15 +5,15 @@
     "keywords": ["laravel", "twilio"],
     "require": {
         "php": "^8.2",
-        "illuminate/http": "^11.0 || ^12.0",
-        "illuminate/support": "^11.0 || ^12.0",
+        "illuminate/http": "^11.0 || ^12.0 || ^13.0",
+        "illuminate/support": "^11.0 || ^12.0 || ^13.0",
         "twilio/sdk": "^8.5"
     },
     "require-dev": {
         "guzzlehttp/guzzle": "^7.8",
-        "laravel/framework": "^11.0 || ^12.0",
-        "orchestra/testbench": "^9.0 || ^10.0",
-        "phpunit/phpunit": "^11.5"
+        "laravel/framework": "^11.0 || ^12.0 || ^13.0",
+        "orchestra/testbench": "^9.0 || ^10.0 || ^11.0",
+        "phpunit/phpunit": "^11.5 || ^12.5"
     },
     "suggest": {
         "illuminate/notifications": "To use Laravel's notifications component with this package"

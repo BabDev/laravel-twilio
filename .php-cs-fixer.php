@@ -13,9 +13,9 @@ $finder = (new PhpCsFixer\Finder())
 return (new PhpCsFixer\Config())
     ->setRules(
         [
-            '@PHP82Migration'                             => true,
-            '@PHP82Migration:risky'                       => true,
-            '@PHPUnit100Migration:risky'                  => true,
+            '@PHP8x2Migration'                            => true,
+            '@PHP8x2Migration:risky'                      => true,
+            '@PHPUnit11x0Migration:risky'                 => true,
             '@PER-CS'                                     => true,
             '@PER-CS:risky'                               => true,
             'align_multiline_comment'                     => true,
