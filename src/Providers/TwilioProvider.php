@@ -66,8 +66,8 @@ final class TwilioProvider extends ServiceProvider implements DeferrableProvider
 
     private function registerNotificationChannel(): void
     {
-        Notification::resolved(static function (ChannelManager $manager): void {
-            $manager->extend('twilio', static function (Application $app): TwilioChannel {
+        Notification::resolved(function (ChannelManager $manager): void {
+            $manager->extend('twilio', function (Application $app): TwilioChannel {
                 /** @var Repository $config */
                 $config = $app->make('config');
 
