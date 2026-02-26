@@ -56,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
     {
         \TwilioClient::extend(
             'custom',
-            static function (Container $container): TwilioClientContract {
+            function (Container $container): TwilioClientContract {
                 /*
                  * Create a custom client from your application.
                  *
