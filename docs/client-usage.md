@@ -28,10 +28,10 @@ class StartTwilioCall
     {
         // Starts a call with a custom "from" number passed through the request,
         // you should validate this number is appropriate before calling the client.
-        $from = $request->get('from');
+        $from = $request->input('from');
 
         // Starts a call to this number, you should validate this number is appropriate before calling the client.
-        $to = $request->get('to');
+        $to = $request->input('to');
 
         // Set any additional parameters for the API call, see https://www.twilio.com/docs/voice/api/call-resource#create-a-call-resource
         // for all available values.
@@ -74,13 +74,13 @@ class SendSMSNotification
     {
         // Sends the message with a custom "from" number passed through the request,
         // you should validate this number is appropriate before calling the client.
-        $from = $request->get('from');
+        $from = $request->input('from');
 
         // Sends the message to this number, you should validate this number is appropriate before calling the client.
-        $to = $request->get('to');
+        $to = $request->input('to');
 
         // Sends this message to the recipient.
-        $message = $request->get('message');
+        $message = $request->input('message');
 
         // Set any additional parameters for the API call, see https://www.twilio.com/docs/sms/send-messages
         // for all available values.
