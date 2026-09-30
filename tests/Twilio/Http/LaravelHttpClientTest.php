@@ -154,6 +154,26 @@ final class LaravelHttpClientTest extends TestCase
         );
     }
 
+    public function testTheTimeoutIsApplied(): void
+    {
+        $url     = 'https://api.twilio.com/2010-04-01/Accounts/SID/Messages.json';
+        $timeout = null;
+
+        /** @var Factory $factory */
+        $factory = $this->app->make(Factory::class);
+        $factory->fake(
+            static function (Request $request, array $options) use ($factory, &$timeout) {
+                $timeout = $options['timeout'] ?? null;
+
+                return $factory->response('', 200, []);
+            }
+        );
+
+        (new LaravelHttpClient($factory))->request('POST', $url, [], [], [], 'username', 'password', 5);
+
+        $this->assertSame(5, $timeout);
+    }
+
     public function testAnExceptionIsThrownWhenThereIsAnErrorPerformingTheRequest(): void
     {
         $this->expectException(HttpException::class);

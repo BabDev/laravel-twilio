@@ -37,6 +37,10 @@ final readonly class LaravelHttpClient implements Client
             $request->withHeader('Authorization', $authStrategy->getAuthString());
         }
 
+        if ($timeout !== null) {
+            $request->timeout($timeout);
+        }
+
         // Twilio expects list values as repeated keys (`Key=a&Key=b`), not PHP's `Key[0]=a&Key[1]=b`
         if ($params) {
             $url .= (str_contains($url, '?') ? '&' : '?') . Query::build($params, \PHP_QUERY_RFC1738);
