@@ -15,7 +15,7 @@ use Twilio\Rest\Client as RestClient;
  * @method static \Twilio\Rest\Client twilio()
  * @method static \Twilio\Rest\Api\V2010\Account\CallInstance call(string $to, array $params = [])
  * @method static \Twilio\Rest\Api\V2010\Account\MessageInstance message(string $to, string $message, array $params = [])
- * @method static mixed driver(string|null $driver = null)
+ * @method static mixed driver(\UnitEnum|string|null $driver = null)
  * @method static \BabDev\Twilio\ConnectionManager extend(string $driver, \Closure $callback)
  * @method static array getDrivers()
  * @method static \Illuminate\Contracts\Container\Container getContainer()
