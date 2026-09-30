@@ -18,9 +18,12 @@ jobs:
 
     name: 'Update Facade Docblocks'
 
+    env:
+      COMPOSER_NO_BLOCKING: 1
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2

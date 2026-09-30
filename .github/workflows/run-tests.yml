@@ -26,9 +26,12 @@ jobs:
 
     name: "PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }}${{ matrix.composer-flags != '' && format(' - Composer {0}', matrix.composer-flags) || '' }}"
 
+    env:
+      COMPOSER_NO_BLOCKING: 1
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
