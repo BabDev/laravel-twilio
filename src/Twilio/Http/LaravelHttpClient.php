@@ -29,7 +29,9 @@ final readonly class LaravelHttpClient implements Client
         ?int $timeout = null,
         ?AuthStrategy $authStrategy = null,
     ): Response {
-        $request = $this->httpFactory->withHeaders($headers);
+        $request = $this->httpFactory
+            ->withoutRedirecting()
+            ->withHeaders($headers);
 
         if ($user && $password) {
             $request->withBasicAuth($user, $password);

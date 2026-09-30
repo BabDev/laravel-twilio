@@ -174,6 +174,23 @@ final class LaravelHttpClientTest extends TestCase
         $this->assertSame(5, $timeout);
     }
 
+    public function testRedirectsAreNotFollowed(): void
+    {
+        $url = 'https://api.twilio.com/2010-04-01/Accounts/SID/Messages.json';
+
+        /** @var Factory $factory */
+        $factory = $this->app->make(Factory::class);
+        $factory->fake([
+            'api.twilio.com/*' => $factory->response('', 302, ['Location' => 'https://example.com/elsewhere']),
+            'example.com/*' => $factory->response('', 200, []),
+        ]);
+
+        $response = (new LaravelHttpClient($factory))->request('POST', $url, [], [], [], 'username', 'password');
+
+        $this->assertSame(302, $response->getStatusCode());
+        $factory->assertSentCount(1);
+    }
+
     public function testAnExceptionIsThrownWhenThereIsAnErrorPerformingTheRequest(): void
     {
         $this->expectException(HttpException::class);
