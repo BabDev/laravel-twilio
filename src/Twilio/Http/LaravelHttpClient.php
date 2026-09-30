@@ -24,9 +24,9 @@ final readonly class LaravelHttpClient implements Client
         array $params = [],
         array $data = [],
         array $headers = [],
-        string $user = null,
-        string $password = null,
-        int $timeout = null,
+        ?string $user = null,
+        ?string $password = null,
+        ?int $timeout = null,
         ?AuthStrategy $authStrategy = null,
     ): Response {
         $request = $this->httpFactory->withHeaders($headers);
