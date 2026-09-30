@@ -3,7 +3,11 @@
 namespace BabDev\Twilio\Facades;
 
 use BabDev\Twilio\ConnectionManager;
+use BabDev\Twilio\Testing\TwilioClientFake;
+use Illuminate\Notifications\ChannelManager;
 use Illuminate\Support\Facades\Facade;
+use Twilio\Http\Client as HttpClient;
+use Twilio\Rest\Client as RestClient;
 
 /**
  * @method static \BabDev\Twilio\Contracts\TwilioClient connection(string|null $name = null)
@@ -22,6 +26,28 @@ use Illuminate\Support\Facades\Facade;
  */
 final class TwilioClient extends Facade
 {
+    /**
+     * Replace the client with a fake that records messages and calls instead of sending them to Twilio.
+     */
+    public static function fake(): TwilioClientFake
+    {
+        $app = self::getFacadeApplication();
+
+        $fake = new TwilioClientFake(
+            new RestClient('AC00000000000000000000000000000000', 'fake-token', null, null, $app->make(HttpClient::class)),
+            $app->make('config')->get('twilio.default', 'twilio'),
+        );
+
+        // A notification channel created before faking would still use the real client
+        if ($app->resolved(ChannelManager::class)) {
+            $app->make(ChannelManager::class)->forgetDrivers();
+        }
+
+        self::swap($fake);
+
+        return $fake;
+    }
+
     /**
      * Get the registered name of the component.
      */

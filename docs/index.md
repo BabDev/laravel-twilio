@@ -4,3 +4,4 @@
 - [Connection Management](/open-source/packages/laravel-twilio/docs/3.x/connections)
 - [Notifications](/open-source/packages/laravel-twilio/docs/3.x/notifications)
 - [Webhooks](/open-source/packages/laravel-twilio/docs/3.x/webhooks)
+- [Testing](/open-source/packages/laravel-twilio/docs/3.x/testing)
