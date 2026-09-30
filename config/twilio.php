@@ -43,6 +43,11 @@ return [
     | of the account the key belongs to. The optional "region" and "edge"
     | keys route requests through a specific Twilio region and edge location.
     |
+    | Set the optional "messaging_service_sid" key to send messages through a
+    | Messaging Service, letting Twilio choose the sender from its pool. The
+    | "from" number is still used for calls, and when sending a message with
+    | a custom "from" number.
+    |
     | To create a new connection, duplicate the "twilio" connection
     | configuration as a new entry in your connections array and give
     | it a unique name. You can now access this connection through the
@@ -58,6 +63,7 @@ return [
             'account_sid' => env('TWILIO_API_ACCOUNT_SID'),
             'region' => env('TWILIO_API_REGION'),
             'edge' => env('TWILIO_API_EDGE'),
+            'messaging_service_sid' => env('TWILIO_API_MESSAGING_SERVICE_SID'),
         ],
     ],
 

@@ -26,6 +26,7 @@ return [
             'account_sid' => env('TWILIO_API_ACCOUNT_SID'),
             'region' => env('TWILIO_API_REGION'),
             'edge' => env('TWILIO_API_EDGE'),
+            'messaging_service_sid' => env('TWILIO_API_MESSAGING_SERVICE_SID'),
         ],
 
         'my_new_connection' => [
@@ -47,6 +48,8 @@ return [
 ```
 
 When authenticating with an [API key](https://www.twilio.com/docs/iam/api-keys), set the `sid` and `token` to the API key's SID and secret, and set the `account_sid` to the SID of the account the key belongs to. The optional `region` and `edge` keys send a connection's requests through a specific [Twilio region and edge location](https://www.twilio.com/docs/global-infrastructure/edge-locations).
+
+To send a connection's messages through a [Messaging Service](https://www.twilio.com/docs/messaging/services), set the optional `messaging_service_sid` key. Twilio then chooses the sender for each message from the service's sender pool, while the `from` number is still used for calls.
 
 ## Customizing Client Creation
 

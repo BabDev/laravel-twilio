@@ -4,6 +4,7 @@ namespace BabDev\Twilio\Tests;
 
 use BabDev\Twilio\Facades\TwilioClient;
 use BabDev\Twilio\Providers\TwilioProvider;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\ServiceProvider;
@@ -23,6 +24,16 @@ final class TwilioClientTest extends TestCase
                 'sid' => 'account-sid',
                 'token' => 'api_token',
                 'from' => '+15558675309',
+            ]
+        );
+
+        $app['config']->set(
+            'twilio.connections.messaging_service',
+            [
+                'sid' => 'account-sid',
+                'token' => 'api_token',
+                'from' => '+15558675309',
+                'messaging_service_sid' => 'MG123',
             ]
         );
     }
@@ -100,6 +111,82 @@ final class TwilioClientTest extends TestCase
         ]);
 
         $this->assertInstanceOf(MessageInstance::class, TwilioClient::message($to, $message, ['from' => $customFrom]));
+    }
+
+    public function testAMessageIsSentFromTheDefaultNumberWithoutAMessagingService(): void
+    {
+        $this->fakeMessageResponse();
+
+        TwilioClient::message('+15558675310', 'Test Message');
+
+        Http::assertSent(static fn(Request $request): bool => $request->data() === [
+            'To' => '+15558675310',
+            'From' => '+15558675309',
+            'Body' => 'Test Message',
+        ]);
+    }
+
+    public function testAMessageIsSentThroughTheConnectionsMessagingService(): void
+    {
+        $this->fakeMessageResponse();
+
+        TwilioClient::connection('messaging_service')->message('+15558675310', 'Test Message');
+
+        Http::assertSent(static fn(Request $request): bool => $request->data() === [
+            'To' => '+15558675310',
+            'MessagingServiceSid' => 'MG123',
+            'Body' => 'Test Message',
+        ]);
+    }
+
+    public function testAMessagingServicePassedByTheCallerIsSentWithoutTheDefaultNumber(): void
+    {
+        $this->fakeMessageResponse();
+
+        TwilioClient::message('+15558675310', 'Test Message', ['messagingServiceSid' => 'MG456']);
+
+        Http::assertSent(static fn(Request $request): bool => $request->data() === [
+            'To' => '+15558675310',
+            'MessagingServiceSid' => 'MG456',
+            'Body' => 'Test Message',
+        ]);
+    }
+
+    public function testACustomFromNumberIsSentWithoutTheConnectionsMessagingService(): void
+    {
+        $this->fakeMessageResponse();
+
+        TwilioClient::connection('messaging_service')->message('+15558675310', 'Test Message', ['from' => '+16518675309']);
+
+        Http::assertSent(static fn(Request $request): bool => $request->data() === [
+            'To' => '+15558675310',
+            'From' => '+16518675309',
+            'Body' => 'Test Message',
+        ]);
+    }
+
+    public function testAMessagingServiceAndACustomFromNumberCanBeSentTogether(): void
+    {
+        $this->fakeMessageResponse();
+
+        TwilioClient::message('+15558675310', 'Test Message', ['from' => '+16518675309', 'messagingServiceSid' => 'MG456']);
+
+        Http::assertSent(static fn(Request $request): bool => $request->data() === [
+            'To' => '+15558675310',
+            'From' => '+16518675309',
+            'MessagingServiceSid' => 'MG456',
+            'Body' => 'Test Message',
+        ]);
+    }
+
+    private function fakeMessageResponse(): void
+    {
+        Http::fake([
+            'https://api.twilio.com/2010-04-01/Accounts/account-sid/Messages.json' => Http::response(
+                $this->getMessageSentResponseContent('+15558675309', '+15558675310'),
+                201,
+            ),
+        ]);
     }
 
     /**

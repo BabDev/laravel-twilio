@@ -11,11 +11,13 @@ use Twilio\Rest\Client;
 final readonly class TwilioClient implements TwilioClientContract
 {
     /**
-     * @param string $from The default from number to use.
+     * @param string      $from                The default from number to use.
+     * @param string|null $messagingServiceSid The default Messaging Service to send messages with, used instead of the from number.
      */
     public function __construct(
         private Client $twilio,
         private string $from,
+        private ?string $messagingServiceSid = null,
     ) {}
 
     public function twilio(): Client
@@ -42,8 +44,14 @@ final readonly class TwilioClient implements TwilioClientContract
     {
         $params['body'] = $message;
 
-        // Allows specifying a custom from number with fallback
-        $params['from'] ??= $this->from;
+        // A sender passed by the caller is used as is. When not set, fall back to the default Messaging Service, then the default from number.
+        if (!isset($params['from']) && !isset($params['messagingServiceSid'])) {
+            if ($this->messagingServiceSid) {
+                $params['messagingServiceSid'] = $this->messagingServiceSid;
+            } else {
+                $params['from'] = $this->from;
+            }
+        }
 
         return $this->twilio()->messages->create($to, $params);
     }

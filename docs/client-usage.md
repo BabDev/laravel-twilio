@@ -60,7 +60,9 @@ function sendMessage(string $phoneNumber, string $message, array $params = [])
 }
 ```
 
-The default implementation of the contract, `BabDev\Twilio\TwilioClient`, uses the default phone number configured for your API connection as the "from" number on the message. You can override this if necessary by setting a 'from' key on the params array.
+The default implementation of the contract, `BabDev\Twilio\TwilioClient`, uses the default phone number configured for your API connection as the "from" number on the message. If your API connection has a Messaging Service configured, messages are sent through that service instead, and Twilio chooses the sender from the service's sender pool.
+
+You can override this if necessary by setting a 'from' key, a 'messagingServiceSid' key, or both on the params array. When either key is set, the connection's defaults are not added to the message; when both are set, the "from" number must be a sender in the Messaging Service's sender pool.
 
 ```php
 namespace App\Http\Controllers;

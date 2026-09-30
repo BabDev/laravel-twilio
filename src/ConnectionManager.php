@@ -65,6 +65,7 @@ class ConnectionManager extends Manager implements TwilioClientContract
                     [
                         'twilio' => $twilio,
                         'from' => $this->config->get("twilio.connections.$driver.from"),
+                        'messagingServiceSid' => $this->config->get("twilio.connections.$driver.messaging_service_sid"),
                     ]
                 );
             } catch (ConfigurationException $e) {
