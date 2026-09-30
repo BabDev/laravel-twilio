@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.2.0 (Unreleased)
+## 3.2.0 (2026-09-30)
 
 - Drop support for Laravel 11, Laravel 12.61.1 or 13.13 and later are now required
 - Add `account_sid`, `region`, and `edge` connection settings, allowing connections to authenticate with an API key and to send requests through a specific Twilio region and edge location
