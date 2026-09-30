@@ -7,9 +7,15 @@ use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\Response;
 use Orchestra\Testbench\TestCase;
+use Twilio\AuthStrategy\AuthStrategy;
 use Twilio\AuthStrategy\BasicAuthStrategy;
 use Twilio\Exceptions\HttpException;
+use Twilio\Http\Client as HttpClient;
+use Twilio\Http\CurlClient;
 use Twilio\Http\File;
+use Twilio\Http\Response as TwilioResponse;
+use Twilio\Rest\Client as RestClient;
+use Twilio\Rest\Content\V1\ContentModels;
 
 final class LaravelHttpClientTest extends TestCase
 {
@@ -190,6 +196,105 @@ final class LaravelHttpClientTest extends TestCase
 
         $this->assertSame(302, $response->getStatusCode());
         $factory->assertSentCount(1);
+    }
+
+    public function testJsonBodiesAreSentWhenTheSdkRequestsThem(): void
+    {
+        $url  = 'https://content.twilio.com/v1/Content';
+        $data = [
+            'friendly_name' => 'order_update',
+            'types' => ['twilio/text' => ['body' => 'Hi {{1}}']],
+        ];
+
+        /** @var Factory $factory */
+        $factory = $this->app->make(Factory::class);
+        $factory->fake([
+            'content.twilio.com/*' => $factory->response('', 201, []),
+        ]);
+
+        (new LaravelHttpClient($factory))->request('POST', $url, [], $data, ['Content-Type' => 'application/json']);
+
+        $factory->assertSent(
+            static fn(Request $request, Response $response): bool => $request->isJson()
+                && $request->body() === '{"friendly_name":"order_update","types":{"twilio\/text":{"body":"Hi {{1}}"}}}'
+        );
+    }
+
+    public function testPatchRequestsSendABody(): void
+    {
+        $url = 'https://conversations.twilio.com/v2/Conversations/CH123';
+
+        /** @var Factory $factory */
+        $factory = $this->app->make(Factory::class);
+        $factory->fake([
+            'conversations.twilio.com/*' => $factory->response('', 200, []),
+        ]);
+
+        $client = new LaravelHttpClient($factory);
+        $client->request('PATCH', $url, [], ['friendlyName' => 'Support'], ['Content-Type' => 'application/json']);
+        $client->request('patch', $url, [], ['FriendlyName' => 'Support']);
+
+        $factory->assertSentInOrder([
+            static fn(Request $request): bool => $request->method() === 'PATCH'
+                && $request->isJson()
+                && $request->body() === '{"friendlyName":"Support"}',
+            static fn(Request $request): bool => $request->method() === 'PATCH'
+                && $request->hasHeader('Content-Type', 'application/x-www-form-urlencoded')
+                && $request->body() === 'FriendlyName=Support',
+        ]);
+    }
+
+    public function testRequestsFromTheSdkMatchTheSdkClient(): void
+    {
+        /** @var Factory $factory */
+        $factory = $this->app->make(Factory::class);
+        $factory->fake([
+            'content.twilio.com/*' => $factory->response(['sid' => 'HX123'], 201, []),
+        ]);
+
+        // Records the SDK's arguments so the expected body can be built by the SDK's own client
+        $client = new class(new LaravelHttpClient($factory)) implements HttpClient {
+            public array $arguments = [];
+
+            public function __construct(
+                private readonly HttpClient $client,
+            ) {}
+
+            public function request(
+                string $method,
+                string $url,
+                array $params = [],
+                array $data = [],
+                array $headers = [],
+                ?string $user = null,
+                ?string $password = null,
+                ?int $timeout = null,
+                ?AuthStrategy $authStrategy = null,
+            ): TwilioResponse {
+                $this->arguments = \func_get_args();
+
+                return $this->client->request(...$this->arguments);
+            }
+        };
+
+        $twilio = new RestClient('AC123', 'token', null, null, $client);
+        $twilio->content->v1->contents->create(ContentModels::createContentCreateRequest([
+            'friendly_name' => 'order_update',
+            'language' => 'en',
+            'variables' => ['1' => 'name'],
+            'types' => ContentModels::createTypes([
+                'twilio/text' => ContentModels::createTwilioText(['body' => 'Hi {{1}}']),
+            ]),
+        ]));
+
+        $expectedBody = (new CurlClient())->options(...$client->arguments)[\CURLOPT_POSTFIELDS];
+
+        $factory->assertSent(
+            static fn(Request $request, Response $response): bool => $request->method() === 'POST'
+                && $request->url() === 'https://content.twilio.com/v1/Content'
+                && $request->isJson()
+                && $request->body() === $expectedBody
+        );
     }
 
     public function testFilesAreSentAsMultipartFormData(): void

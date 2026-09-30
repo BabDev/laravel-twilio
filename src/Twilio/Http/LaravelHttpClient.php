@@ -50,19 +50,25 @@ final readonly class LaravelHttpClient implements Client
             $url .= (str_contains($url, '?') ? '&' : '?') . Query::build($params, \PHP_QUERY_RFC1738);
         }
 
-        if ($method === 'POST' || $method === 'PUT') {
+        $method = strtoupper(trim($method));
+        $body = [];
+
+        if (\in_array($method, ['POST', 'PUT', 'PATCH'], true)) {
             if ($this->hasFile($data)) {
                 $this->attachMultipartData($request, $data);
+            } elseif (($headers['Content-Type'] ?? null) === 'application/json') {
+                $request->asJson();
+                $body = $data;
             } else {
                 $request->withBody(Query::build($data, \PHP_QUERY_RFC1738), 'application/x-www-form-urlencoded');
             }
         }
 
         try {
-            // Attached files are only sent by the verb helpers, which pass the request data through to send()
             $response = match ($method) {
-                'POST' => $request->post($url),
-                'PUT' => $request->put($url),
+                'POST' => $request->post($url, $body),
+                'PUT' => $request->put($url, $body),
+                'PATCH' => $request->patch($url, $body),
                 default => $request->send($method, $url),
             };
         } catch (\Exception $exception) {
