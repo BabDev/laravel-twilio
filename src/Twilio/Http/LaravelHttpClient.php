@@ -2,6 +2,7 @@
 
 namespace BabDev\Twilio\Twilio\Http;
 
+use GuzzleHttp\Psr7\Query;
 use Illuminate\Http\Client\Factory;
 use Twilio\AuthStrategy\AuthStrategy;
 use Twilio\Exceptions\HttpException;
@@ -28,8 +29,7 @@ final readonly class LaravelHttpClient implements Client
         int $timeout = null,
         ?AuthStrategy $authStrategy = null,
     ): Response {
-        $request = $this->httpFactory->bodyFormat('form_params')
-            ->withHeaders($headers);
+        $request = $this->httpFactory->withHeaders($headers);
 
         if ($user && $password) {
             $request->withBasicAuth($user, $password);
@@ -37,17 +37,17 @@ final readonly class LaravelHttpClient implements Client
             $request->withHeader('Authorization', $authStrategy->getAuthString());
         }
 
-        $requestOptions = [
-            'form_params' => $data,
-            'query' => $params,
-        ];
+        // Twilio expects list values as repeated keys (`Key=a&Key=b`), not PHP's `Key[0]=a&Key[1]=b`
+        if ($params) {
+            $url .= (str_contains($url, '?') ? '&' : '?') . Query::build($params, \PHP_QUERY_RFC1738);
+        }
+
+        if ($method === 'POST' || $method === 'PUT') {
+            $request->withBody(Query::build($data, \PHP_QUERY_RFC1738), 'application/x-www-form-urlencoded');
+        }
 
         try {
-            $response = $request->send(
-                $method,
-                $url,
-                $requestOptions,
-            );
+            $response = $request->send($method, $url);
         } catch (\Exception $exception) {
             throw new HttpException('Unable to complete the HTTP request', 0, $exception);
         }

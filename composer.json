@@ -5,13 +5,14 @@
     "keywords": ["laravel", "twilio"],
     "require": {
         "php": "^8.2",
+        "guzzlehttp/psr7": "^1.9.1 || ^2.5.1 || ^3.0",
         "illuminate/http": "^11.0 || ^12.0 || ^13.0",
         "illuminate/notifications": "^11.0 || ^12.0 || ^13.0",
         "illuminate/support": "^11.0 || ^12.0 || ^13.0",
         "twilio/sdk": "^8.5"
     },
     "require-dev": {
-        "guzzlehttp/guzzle": "^7.8",
+        "guzzlehttp/guzzle": "^7.8 || ^8.0",
         "laravel/framework": "^11.0 || ^12.0 || ^13.0",
         "orchestra/testbench": "^9.0 || ^10.0 || ^11.0",
         "phpunit/phpunit": "^11.5 || ^12.5"

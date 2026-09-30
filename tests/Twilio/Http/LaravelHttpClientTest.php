@@ -111,6 +111,49 @@ final class LaravelHttpClientTest extends TestCase
         );
     }
 
+    public function testListValuesAreEncodedAsRepeatedKeys(): void
+    {
+        $url = 'https://api.twilio.com/2010-04-01/Accounts/SID/Calls.json';
+
+        /** @var Factory $factory */
+        $factory = $this->app->make(Factory::class);
+        $factory->fake([
+            'api.twilio.com/*' => $factory->response('', 200, []),
+        ]);
+
+        (new LaravelHttpClient($factory))->request(
+            'POST',
+            $url,
+            ['PageSize' => 20, 'Status' => ['queued', 'ringing']],
+            ['To' => '+18003285920', 'StatusCallbackEvent' => ['initiated', 'ringing']],
+        );
+
+        $factory->assertSent(
+            static fn(Request $request, Response $response): bool => $request->url() === $url . '?PageSize=20&Status=queued&Status=ringing'
+                && $request->body() === 'To=%2B18003285920&StatusCallbackEvent=initiated&StatusCallbackEvent=ringing'
+                && $request->hasHeader('Content-Type', 'application/x-www-form-urlencoded')
+        );
+    }
+
+    public function testAGetRequestIsSentWithoutABody(): void
+    {
+        $url = 'https://api.twilio.com/2010-04-01/Accounts/SID/Messages.json';
+
+        /** @var Factory $factory */
+        $factory = $this->app->make(Factory::class);
+        $factory->fake([
+            'api.twilio.com/*' => $factory->response('', 200, []),
+        ]);
+
+        (new LaravelHttpClient($factory))->request('GET', $url, ['To' => '+18003285920']);
+
+        $factory->assertSent(
+            static fn(Request $request, Response $response): bool => $request->url() === $url . '?To=%2B18003285920'
+                && $request->body() === ''
+                && !$request->hasHeader('Content-Type')
+        );
+    }
+
     public function testAnExceptionIsThrownWhenThereIsAnErrorPerformingTheRequest(): void
     {
         $this->expectException(HttpException::class);
