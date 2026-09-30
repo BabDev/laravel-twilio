@@ -5,6 +5,7 @@ namespace BabDev\Twilio\Twilio\Http;
 use GuzzleHttp\Psr7\Query;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
 use Twilio\AuthStrategy\AuthStrategy;
 use Twilio\Exceptions\HttpException;
 use Twilio\Http\Client;
@@ -71,6 +72,8 @@ final readonly class LaravelHttpClient implements Client
                 'PATCH' => $request->patch($url, $body),
                 default => $request->send($method, $url),
             };
+        } catch (RequestException $exception) {
+            $response = $exception->response;
         } catch (\Exception $exception) {
             throw new HttpException('Unable to complete the HTTP request', 0, $exception);
         }

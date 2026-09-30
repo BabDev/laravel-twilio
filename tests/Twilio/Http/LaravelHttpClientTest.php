@@ -415,6 +415,25 @@ final class LaravelHttpClientTest extends TestCase
         );
     }
 
+    public function testErrorResponsesThrownByTheHttpClientAreReturned(): void
+    {
+        $url = 'https://api.twilio.com/2010-04-01/Accounts/SID/Messages.json';
+
+        /** @var Factory $factory */
+        $factory = $this->app->make(Factory::class);
+        $factory->fake([
+            'api.twilio.com/*' => $factory->response(['code' => 20404, 'message' => 'Not found'], 404, []),
+        ]);
+
+        // Makes Laravel throw a RequestException for error responses, as an application might configure globally
+        $factory->globalOptions(['http_errors' => true]);
+
+        $response = (new LaravelHttpClient($factory))->request('POST', $url, [], [], [], 'username', 'password');
+
+        $this->assertSame(404, $response->getStatusCode());
+        $this->assertSame(['code' => 20404, 'message' => 'Not found'], $response->getContent());
+    }
+
     public function testAnExceptionIsThrownWhenThereIsAnErrorPerformingTheRequest(): void
     {
         $this->expectException(HttpException::class);
