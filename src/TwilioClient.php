@@ -49,7 +49,10 @@ final readonly class TwilioClient implements TwilioClientContract
      */
     public function message(string $to, string $message, array $params = []): MessageInstance
     {
-        $params['body'] = $message;
+        // Twilio requires a body only when the message has no media or Content Template
+        if ($message !== '') {
+            $params['body'] = $message;
+        }
 
         // A sender passed by the caller is used as is. When not set, fall back to the default Messaging Service, then the default from number.
         if (!isset($params['from']) && !isset($params['messagingServiceSid'])) {
