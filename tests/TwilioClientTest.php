@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\ServiceProvider;
 use Orchestra\Testbench\TestCase;
+use Twilio\Exceptions\ConfigurationException;
 use Twilio\Rest\Api\V2010\Account\CallInstance;
 use Twilio\Rest\Api\V2010\Account\MessageInstance;
 use Twilio\Rest\Client;
@@ -34,6 +35,24 @@ final class TwilioClientTest extends TestCase
                 'token' => 'api_token',
                 'from' => '+15558675309',
                 'messaging_service_sid' => 'MG123',
+            ]
+        );
+
+        $app['config']->set(
+            'twilio.connections.service_only',
+            [
+                'sid' => 'account-sid',
+                'token' => 'api_token',
+                'messaging_service_sid' => 'MG123',
+            ]
+        );
+
+        $app['config']->set(
+            'twilio.connections.no_sender',
+            [
+                'sid' => 'account-sid',
+                'token' => 'api_token',
+                'from' => '',
             ]
         );
     }
@@ -177,6 +196,63 @@ final class TwilioClientTest extends TestCase
             'MessagingServiceSid' => 'MG456',
             'Body' => 'Test Message',
         ]);
+    }
+
+    public function testAMessageIsSentThroughAServiceOnlyConnection(): void
+    {
+        $this->fakeMessageResponse();
+
+        TwilioClient::connection('service_only')->message('+15558675310', 'Test Message');
+
+        Http::assertSent(static fn(Request $request): bool => $request->data() === [
+            'To' => '+15558675310',
+            'MessagingServiceSid' => 'MG123',
+            'Body' => 'Test Message',
+        ]);
+    }
+
+    public function testACallCanBeCreatedFromAServiceOnlyConnectionWithACustomFromNumber(): void
+    {
+        Http::fake([
+            'https://api.twilio.com/2010-04-01/Accounts/account-sid/Calls.json' => Http::response(
+                $this->getMessageSentResponseContent('+16518675309', '+15558675310'),
+                201,
+            ),
+        ]);
+
+        TwilioClient::connection('service_only')->call('+15558675310', ['from' => '+16518675309', 'url' => 'https://example.com/twiml']);
+
+        Http::assertSent(static fn(Request $request): bool => $request->data()['From'] === '+16518675309');
+    }
+
+    public function testACallCannotBeCreatedWithoutAFromNumber(): void
+    {
+        Http::fake();
+
+        try {
+            TwilioClient::connection('service_only')->call('+15558675310', ['url' => 'https://example.com/twiml']);
+
+            $this->fail('A call without a from number should not be created.');
+        } catch (ConfigurationException $exception) {
+            $this->assertSame('A "from" number is required to create a call.', $exception->getMessage());
+        }
+
+        Http::assertNothingSent();
+    }
+
+    public function testAMessageCannotBeSentWithoutASender(): void
+    {
+        Http::fake();
+
+        try {
+            TwilioClient::connection('no_sender')->message('+15558675310', 'Test Message');
+
+            $this->fail('A message without a sender should not be sent.');
+        } catch (ConfigurationException $exception) {
+            $this->assertSame('A "from" number or Messaging Service SID is required to send a message.', $exception->getMessage());
+        }
+
+        Http::assertNothingSent();
     }
 
     private function fakeMessageResponse(): void

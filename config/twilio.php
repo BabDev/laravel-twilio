@@ -34,9 +34,11 @@ return [
     |--------------------------------------------------------------------------
     |
     | Here are each of the Twilio connections setup for your application.
-    | Each connection is required to provide a "sid", "token", and "from" key,
-    | all of which are required parameters for creating a connection to the
-    | Twilio REST API.
+    | Each connection is required to provide a "sid" and "token" key, which
+    | are required parameters for creating a connection to the Twilio REST
+    | API, and a "from" key with the default number to send from. The "from"
+    | key is optional when "messaging_service_sid" is set and the connection
+    | is only used to send messages.
     |
     | When authenticating with an API key, the "sid" and "token" are the API
     | key's SID and secret, and the "account_sid" key must be set to the SID

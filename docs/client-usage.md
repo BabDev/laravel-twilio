@@ -14,7 +14,7 @@ function startCall(string $phoneNumber, array $params = [])
 }
 ```
 
-The default implementation of the contract, `BabDev\Twilio\TwilioClient`, uses the default phone number configured for your API connection as the "from" number on the call. You can override this if necessary by setting a 'from' key on the params array.
+The default implementation of the contract, `BabDev\Twilio\TwilioClient`, uses the default phone number configured for your API connection as the "from" number on the call. You can override this if necessary by setting a 'from' key on the params array. If there is neither a 'from' key nor a default phone number, a `Twilio\Exceptions\ConfigurationException` is thrown.
 
 ```php
 namespace App\Http\Controllers;
@@ -62,7 +62,7 @@ function sendMessage(string $phoneNumber, string $message, array $params = [])
 
 The default implementation of the contract, `BabDev\Twilio\TwilioClient`, uses the default phone number configured for your API connection as the "from" number on the message. If your API connection has a Messaging Service configured, messages are sent through that service instead, and Twilio chooses the sender from the service's sender pool.
 
-You can override this if necessary by setting a 'from' key, a 'messagingServiceSid' key, or both on the params array. When either key is set, the connection's defaults are not added to the message; when both are set, the "from" number must be a sender in the Messaging Service's sender pool.
+You can override this if necessary by setting a 'from' key, a 'messagingServiceSid' key, or both on the params array. When either key is set, the connection's defaults are not added to the message; when both are set, the "from" number must be a sender in the Messaging Service's sender pool. If there is no sender in the params array and your API connection has neither a default phone number nor a Messaging Service, a `Twilio\Exceptions\ConfigurationException` is thrown.
 
 ```php
 namespace App\Http\Controllers;
