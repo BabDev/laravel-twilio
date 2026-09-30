@@ -38,6 +38,11 @@ return [
     | all of which are required parameters for creating a connection to the
     | Twilio REST API.
     |
+    | When authenticating with an API key, the "sid" and "token" are the API
+    | key's SID and secret, and the "account_sid" key must be set to the SID
+    | of the account the key belongs to. The optional "region" and "edge"
+    | keys route requests through a specific Twilio region and edge location.
+    |
     | To create a new connection, duplicate the "twilio" connection
     | configuration as a new entry in your connections array and give
     | it a unique name. You can now access this connection through the
@@ -50,6 +55,9 @@ return [
             'sid' => env('TWILIO_API_SID', ''),
             'token' => env('TWILIO_API_AUTH_TOKEN', ''),
             'from' => env('TWILIO_API_FROM_NUMBER', ''),
+            'account_sid' => env('TWILIO_API_ACCOUNT_SID'),
+            'region' => env('TWILIO_API_REGION'),
+            'edge' => env('TWILIO_API_EDGE'),
         ],
     ],
 

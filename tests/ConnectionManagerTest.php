@@ -7,6 +7,8 @@ use BabDev\Twilio\Contracts\TwilioClient as TwilioClientContract;
 use BabDev\Twilio\Providers\TwilioProvider;
 use BabDev\Twilio\TwilioClient;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Http\Client\Factory;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\ServiceProvider;
 use Orchestra\Testbench\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -29,6 +31,49 @@ final class ConnectionManagerTest extends TestCase
 
         $this->assertInstanceOf(TwilioClient::class, $manager->connection('custom'));
         $this->assertNotSame($manager->connection(), $manager->connection('custom'), 'The default manager instance should not be the same as the custom instance.');
+    }
+
+    public function testOptionalConnectionSettingsArePassedToTheSdkClient(): void
+    {
+        $twilio = $this->app->make(ConnectionManager::class)->connection('api_key')->twilio();
+
+        $this->assertSame('SK123', $twilio->getUsername());
+        $this->assertSame('AC123', $twilio->getAccountSid());
+        $this->assertSame('ie1', $twilio->getRegion());
+        $this->assertSame('dublin', $twilio->getEdge());
+    }
+
+    public function testConnectionsWithoutOptionalSettingsUseTheSdkDefaults(): void
+    {
+        /** @var Factory $factory */
+        $factory = $this->app->make(Factory::class);
+        $factory->fake([
+            '*' => $factory->response(['sid' => 'SM123'], 201),
+        ]);
+
+        // The SDK's region and edge getters cannot return null, so check where the request is sent instead
+        $this->app->make(ConnectionManager::class)->connection()->message('+15558675310', 'Hello');
+
+        $factory->assertSent(
+            static fn(Request $request): bool => $request->url() === 'https://api.twilio.com/2010-04-01/Accounts/api_sid/Messages.json'
+                && $request->hasHeader('Authorization', 'Basic ' . base64_encode('api_sid:api_token'))
+        );
+    }
+
+    public function testApiKeyConnectionsSendRequestsForTheAccount(): void
+    {
+        /** @var Factory $factory */
+        $factory = $this->app->make(Factory::class);
+        $factory->fake([
+            '*' => $factory->response(['sid' => 'SM123'], 201),
+        ]);
+
+        $this->app->make(ConnectionManager::class)->connection('api_key')->message('+15558675310', 'Hello');
+
+        $factory->assertSent(
+            static fn(Request $request): bool => $request->url() === 'https://api.dublin.ie1.twilio.com/2010-04-01/Accounts/AC123/Messages.json'
+                && $request->hasHeader('Authorization', 'Basic ' . base64_encode('SK123:api_key_secret'))
+        );
     }
 
     public function testAnUnknownCustomConnectionCausesAnException(): void
@@ -111,6 +156,18 @@ final class ConnectionManagerTest extends TestCase
                 'sid' => 'api_sid',
                 'token' => 'api_token',
                 'from' => '+15558675309',
+            ]
+        );
+
+        $app['config']->set(
+            'twilio.connections.api_key',
+            [
+                'sid' => 'SK123',
+                'token' => 'api_key_secret',
+                'from' => '+15558675309',
+                'account_sid' => 'AC123',
+                'region' => 'ie1',
+                'edge' => 'dublin',
             ]
         );
 

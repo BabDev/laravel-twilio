@@ -23,6 +23,9 @@ return [
             'sid' => env('TWILIO_API_SID', ''),
             'token' => env('TWILIO_API_AUTH_TOKEN', ''),
             'from' => env('TWILIO_API_FROM_NUMBER', ''),
+            'account_sid' => env('TWILIO_API_ACCOUNT_SID'),
+            'region' => env('TWILIO_API_REGION'),
+            'edge' => env('TWILIO_API_EDGE'),
         ],
 
         'my_new_connection' => [
@@ -30,9 +33,20 @@ return [
             'token' => 'TOKEN-1',
             'from' => 'PHONE-1',
         ],
+
+        'my_api_key_connection' => [
+            'sid' => 'API-KEY-SID',
+            'token' => 'API-KEY-SECRET',
+            'from' => 'PHONE-2',
+            'account_sid' => 'ACCOUNT-SID',
+            'region' => 'ie1',
+            'edge' => 'dublin',
+        ],
     ],
 ];
 ```
+
+When authenticating with an [API key](https://www.twilio.com/docs/iam/api-keys), set the `sid` and `token` to the API key's SID and secret, and set the `account_sid` to the SID of the account the key belongs to. The optional `region` and `edge` keys send a connection's requests through a specific [Twilio region and edge location](https://www.twilio.com/docs/global-infrastructure/edge-locations).
 
 ## Customizing Client Creation
 

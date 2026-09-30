@@ -47,3 +47,6 @@ The below environment variables should be set in your application's `.env` file:
 - `TWILIO_API_SID` - The Twilio API SID to use for the default Twilio API connection
 - `TWILIO_API_AUTH_TOKEN` - The Twilio API authentication token to use for the default Twilio API connection
 - `TWILIO_API_FROM_NUMBER` - The default sending phone number to use for the default Twilio API connection, note the sending phone number can be changed on a per-message basis
+- `TWILIO_API_ACCOUNT_SID` - (Optional) The SID of the Twilio account to use for the default Twilio API connection; this is required when `TWILIO_API_SID` and `TWILIO_API_AUTH_TOKEN` are an API key's SID and secret
+- `TWILIO_API_REGION` - (Optional) The Twilio region to send requests for the default Twilio API connection to
+- `TWILIO_API_EDGE` - (Optional) The Twilio edge location to send requests for the default Twilio API connection through

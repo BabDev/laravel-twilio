@@ -44,17 +44,26 @@ class ConnectionManager extends Manager implements TwilioClientContract
             }
 
             try {
+                /** @var RestClient $twilio */
+                $twilio = $this->container->make(
+                    RestClient::class,
+                    [
+                        'username' => $this->config->get("twilio.connections.$driver.sid"),
+                        'password' => $this->config->get("twilio.connections.$driver.token"),
+                        'accountSid' => $this->config->get("twilio.connections.$driver.account_sid"),
+                        'region' => $this->config->get("twilio.connections.$driver.region"),
+                        'httpClient' => $this->container->make(HttpClient::class),
+                    ]
+                );
+
+                if ($edge = $this->config->get("twilio.connections.$driver.edge")) {
+                    $twilio->setEdge($edge);
+                }
+
                 return $this->container->make(
                     TwilioClient::class,
                     [
-                        'twilio' => $this->container->make(
-                            RestClient::class,
-                            [
-                                'username' => $this->config->get("twilio.connections.$driver.sid"),
-                                'password' => $this->config->get("twilio.connections.$driver.token"),
-                                'httpClient' => $this->container->make(HttpClient::class),
-                            ]
-                        ),
+                        'twilio' => $twilio,
                         'from' => $this->config->get("twilio.connections.$driver.from"),
                     ]
                 );
