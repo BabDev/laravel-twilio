@@ -9,6 +9,7 @@ use Illuminate\Http\Client\Response;
 use Orchestra\Testbench\TestCase;
 use Twilio\AuthStrategy\BasicAuthStrategy;
 use Twilio\Exceptions\HttpException;
+use Twilio\Http\File;
 
 final class LaravelHttpClientTest extends TestCase
 {
@@ -189,6 +190,124 @@ final class LaravelHttpClientTest extends TestCase
 
         $this->assertSame(302, $response->getStatusCode());
         $factory->assertSentCount(1);
+    }
+
+    public function testFilesAreSentAsMultipartFormData(): void
+    {
+        $url = 'https://serverless.twilio.com/v1/Services/ZS/Assets/ZH/Versions';
+
+        /** @var Factory $factory */
+        $factory = $this->app->make(Factory::class);
+        $factory->fake([
+            'serverless.twilio.com/*' => $factory->response('', 201, []),
+        ]);
+
+        (new LaravelHttpClient($factory))->request(
+            'POST',
+            $url,
+            [],
+            [
+                'Path' => '/hello.txt',
+                'FriendlyName' => '',
+                'Tags' => ['first', 'second'],
+                'Content' => new File('hello.txt', 'Hello world', 'text/plain'),
+            ],
+            [],
+            'username',
+            'password',
+        );
+
+        $factory->assertSent(
+            static fn(Request $request, Response $response): bool => $request->isMultipart()
+                && str_starts_with($request->header('Content-Type')[0], 'multipart/form-data; boundary=')
+                && str_contains($request->body(), 'name="Path"')
+                && str_contains($request->body(), "\r\n\r\n/hello.txt\r\n")
+                && preg_match('/name="FriendlyName"\r\n(?:[^\r\n]+\r\n)*\r\n\r\n/', $request->body()) === 1
+                && substr_count($request->body(), 'name="Tags"') === 2
+                && str_contains($request->body(), 'name="Content"; filename="hello.txt"')
+                && str_contains($request->body(), "Content-Type: text/plain\r\n")
+                && str_contains($request->body(), "\r\n\r\nHello world\r\n")
+        );
+    }
+
+    public function testFileContentsAreReadFromThePathWhenNotProvided(): void
+    {
+        $url  = 'https://serverless.twilio.com/v1/Services/ZS/Assets/ZH/Versions';
+        $path = tempnam(sys_get_temp_dir(), 'twilio-upload-');
+
+        file_put_contents($path, 'Contents from disk');
+
+        /** @var Factory $factory */
+        $factory = $this->app->make(Factory::class);
+        $factory->fake([
+            'serverless.twilio.com/*' => $factory->response('', 201, []),
+        ]);
+
+        try {
+            (new LaravelHttpClient($factory))->request('POST', $url, [], ['Content' => new File($path)]);
+        } finally {
+            @unlink($path);
+        }
+
+        $factory->assertSent(
+            static fn(Request $request, Response $response): bool => str_contains($request->body(), \sprintf('name="Content"; filename="%s"', basename($path)))
+                && str_contains($request->body(), 'Contents from disk')
+        );
+    }
+
+    public function testFileContentsCanBeAResource(): void
+    {
+        $url    = 'https://serverless.twilio.com/v1/Services/ZS/Assets/ZH/Versions';
+        $stream = fopen('php://memory', 'r+b');
+
+        fwrite($stream, 'Contents from a stream');
+        rewind($stream);
+
+        /** @var Factory $factory */
+        $factory = $this->app->make(Factory::class);
+        $factory->fake([
+            'serverless.twilio.com/*' => $factory->response('', 201, []),
+        ]);
+
+        (new LaravelHttpClient($factory))->request('POST', $url, [], ['Content' => new File('stream.txt', $stream)]);
+
+        $factory->assertSent(
+            static fn(Request $request, Response $response): bool => str_contains($request->body(), 'name="Content"; filename="stream.txt"')
+                && str_contains($request->body(), 'Contents from a stream')
+        );
+    }
+
+    public function testAnExceptionIsThrownWhenFileContentsAreNotSupported(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unsupported content type');
+
+        /** @var Factory $factory */
+        $factory = $this->app->make(Factory::class);
+        $factory->fake();
+
+        (new LaravelHttpClient($factory))->request(
+            'POST',
+            'https://serverless.twilio.com/v1/Services/ZS/Assets/ZH/Versions',
+            [],
+            ['Content' => new File('numbers.txt', 12345)],
+        );
+    }
+
+    public function testAnExceptionIsThrownWhenAFileCannotBeOpened(): void
+    {
+        $this->expectException(HttpException::class);
+
+        /** @var Factory $factory */
+        $factory = $this->app->make(Factory::class);
+        $factory->fake();
+
+        (new LaravelHttpClient($factory))->request(
+            'POST',
+            'https://serverless.twilio.com/v1/Services/ZS/Assets/ZH/Versions',
+            [],
+            ['Content' => new File('/path/that/does/not/exist.txt')],
+        );
     }
 
     public function testAnExceptionIsThrownWhenThereIsAnErrorPerformingTheRequest(): void
