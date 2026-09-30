@@ -50,6 +50,11 @@ return [
     | "from" number is still used for calls, and when sending a message with
     | a custom "from" number.
     |
+    | Twilio signs webhook requests with the account's auth token, which is
+    | also the "token" unless the connection authenticates with an API key.
+    | Connections using an API key should set the optional "webhook_token"
+    | key to the account's auth token to validate webhook signatures.
+    |
     | To create a new connection, duplicate the "twilio" connection
     | configuration as a new entry in your connections array and give
     | it a unique name. You can now access this connection through the
@@ -66,6 +71,7 @@ return [
             'region' => env('TWILIO_API_REGION'),
             'edge' => env('TWILIO_API_EDGE'),
             'messaging_service_sid' => env('TWILIO_API_MESSAGING_SERVICE_SID'),
+            'webhook_token' => env('TWILIO_API_WEBHOOK_TOKEN'),
         ],
     ],
 

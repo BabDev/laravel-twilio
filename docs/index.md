@@ -3,3 +3,4 @@
 - [Using The Client](/open-source/packages/laravel-twilio/docs/3.x/client-usage)
 - [Connection Management](/open-source/packages/laravel-twilio/docs/3.x/connections)
 - [Notifications](/open-source/packages/laravel-twilio/docs/3.x/notifications)
+- [Webhooks](/open-source/packages/laravel-twilio/docs/3.x/webhooks)
