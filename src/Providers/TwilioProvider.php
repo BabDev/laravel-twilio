@@ -8,28 +8,14 @@ use BabDev\Twilio\Notifications\Channels\TwilioChannel;
 use BabDev\Twilio\Twilio\Http\LaravelHttpClient;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\Support\DeferrableProvider;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Notifications\ChannelManager;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\ServiceProvider;
 use Twilio\Http\Client as TwilioHttpClient;
 
-final class TwilioProvider extends ServiceProvider implements DeferrableProvider
+final class TwilioProvider extends ServiceProvider
 {
-    /**
-     * @return array<string|class-string>
-     */
-    public function provides(): array
-    {
-        return [
-            ConnectionManager::class,
-            TwilioClient::class,
-
-            TwilioHttpClient::class,
-        ];
-    }
-
     public function boot(): void
     {
         $this->publishes([
